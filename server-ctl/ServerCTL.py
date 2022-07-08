@@ -27,7 +27,7 @@ def load_deployment(deployment_name):
         spec:
           containers:
           - name: {deployment_name}
-            image: robertovrf/remote-dist:latest
+            image: andrepapoti/remote-dist:latest
             imagePullPolicy: Always
             ports:
             - containerPort: 5000

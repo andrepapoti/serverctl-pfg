@@ -34,15 +34,17 @@ component provides App requires io.Output out, net.TCPSocket, net.TCPServerSocke
 		}
 		if ((remote == null) || (remote.arrayLength > 1)) { throw new Exception("Something went wrong!") }
 		else {
-			// parsing state to Data
-			Int content[] = encoder.jsonToArray(state, typeof(Int[]), null)
-			// adding content to list in the object
-			Object objects[] = remote[0].class.getObjects("data.adt.List:heap")
-			List list = objects[0]
-			for (int i = 0; i < content.arrayLength; i++) {
-				list.add(content[i])
+			if (state != null) {
+				// parsing state to Data
+				Int content[] = encoder.jsonToArray(state, typeof(Int[]), null)
+				// adding content to list in the object
+				Object objects[] = remote[0].class.getObjects("data.adt.List:heap")
+				List list = objects[0]
+				for (int i = 0; i < content.arrayLength; i++) {
+					list.add(content[i])
+				}
+				out.println("$(debugMSG) State inserted!")
 			}
-			out.println("$(debugMSG) State inserted!")
 		}
 	}
 
@@ -76,7 +78,11 @@ component provides App requires io.Output out, net.TCPSocket, net.TCPServerSocke
 		// processing command
 		String helper[] = strUtil.explode(command, "!")
 		if (helper[0].string == "../distributor/RemoteList.o") {
-			startRemoteProcess(helper[0].string, helper[1].string)
+			if (helper.arrayLength == 2) {
+				startRemoteProcess(helper[0].string, helper[1].string)
+			} else {
+				startRemoteProcess(helper[0].string, null)
+			}
 		} else {
 			clearState()
 		}

@@ -134,7 +134,10 @@ component
 		char param[] = parser.jsonFromData(item, null)
 		char content2[] = new char[](requestStr, "!", param, "\r\r\r\r")
 		Int num = item
-		IPAddr addr = remoteListsIps[hash.h(num.i, remoteListsIps.arrayLength)]
+    int remoteIpIndex = hash.h(num.i, remoteListsIps.arrayLength)
+
+		IPAddr addr = remoteListsIps[remoteIpIndex]
+    out.println("Adding $(num.i) to $(addr.ip)")
 		// send to remote list
 		makeRequest(addr, content2, false)
 	}
@@ -233,27 +236,28 @@ component
 	}
 
 	void AdaptEvents:active() {
-    out.println("OI")
-		if (content != null) {
-      out.println("O2")
-			startRemoteIps()
-      out.println("O3")
-			ShardState shardState[] = new ShardState[remoteDistIps.arrayLength]
-			for (int i = 0; i < content.arrayLength; i++) {
-				Int num = content[i]
-				int remoteIdx = hash.h(num.i, remoteDistIps.arrayLength)
-				if (shardState[remoteIdx] == null) {
-					shardState[remoteIdx] = new ShardState()
-				}
-				shardState[remoteIdx].state = new Int[](shardState[remoteIdx].state, num)
-			}
+		startRemoteIps()
+		ShardState shardState[] = new ShardState[remoteDistIps.arrayLength]
 
-			for (int i = 0; i < remoteDistIps.arrayLength; i++) {
-				char state[] = parser.jsonFromArray(shardState[i].state, null)
-				char msg[] = new char[]("../distributor/RemoteList.o!", state, "\r\r\r\r")
-				makeRequest(remoteDistIps[i], msg, true)
+		for (int i = 0; i < remoteDistIps.arrayLength; i++) {
+			shardState[i] = new ShardState()
+		}
+
+		for (int i = 0; i < content.arrayLength; i++) {
+			Int num = content[i]
+			int remoteIdx = hash.h(num.i, remoteDistIps.arrayLength)
+			
+			shardState[remoteIdx].state = new Int[](shardState[remoteIdx].state, num)
+		}
+
+		for (int i = 0; i < remoteDistIps.arrayLength; i++) {
+			char state[] = ""
+			if (shardState[i].state != null) {
+				state = parser.jsonFromArray(shardState[i].state, null)
 			}
-      out.println("O3")
+	
+			char msg[] = new char[]("../distributor/RemoteList.o!", state, "\r\r\r\r")
+			makeRequest(remoteDistIps[i], msg, true)
 		}
 	}
 }

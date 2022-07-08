@@ -61,32 +61,32 @@ const executeRequests = async (): Promise<void> => {
     });
   }
 
-  const promiseArray: Promise<void>[] = [];
+  // const promiseArray: Promise<void>[] = [];
 
   // eslint-disable-next-line no-undef
   for (let i = 0; i < numberOfRequests; i += 1) {
     requests[i].sendTimeStamp = performance.now();
-    promiseArray.push(
-      fetch("http://34.121.242.204:5000", requests[i].request)
-        .then((response) => {
-          requests[i].receivedTimeStamp = performance.now();
-
-          return response.text();
-        })
-        .then((data) => {
-          requests[i].response = data;
-          logResponse(requests[i]);
-        })
-        .catch((error) => {
-          console.error("Error on request", i, error, requests[i]);
-        })
-    );
 
     // eslint-disable-next-line no-await-in-loop
-    await sleep(delayBetweenRequests);
+    await fetch("http://34.94.174.63:5000", requests[i].request)
+      .then((response) => {
+        requests[i].receivedTimeStamp = performance.now();
+
+        return response.text();
+      })
+      .then((data) => {
+        requests[i].response = data;
+        logResponse(requests[i]);
+      })
+      .catch((error) => {
+        console.error("Error on request", i, error, requests[i]);
+      });
+
+    // eslint-disable-next-line no-await-in-loop
+    // await sleep(delayBetweenRequests);
   }
 
-  await Promise.all(promiseArray);
+  // await Promise.all(promiseArray);
 
   const totalTime = requests.reduce((acc, request) => {
     if (request.sendTimeStamp === undefined) return acc;

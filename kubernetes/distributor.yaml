@@ -21,6 +21,8 @@ spec:
           ports:
             - containerPort: 5000
             - containerPort: 5001
+      nodeSelector:
+        pfgtype: meta
 ---
 apiVersion: v1
 kind: Service

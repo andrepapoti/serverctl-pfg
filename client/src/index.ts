@@ -17,6 +17,12 @@ const sleep = (ms: number): Promise<void> =>
   // eslint-disable-next-line no-promise-executor-return
   new Promise((f) => setTimeout(f, ms));
 
+const setResponseTime = (request: RequestData): void => {
+  if (request.sendTimeStamp === undefined) return;
+  if (request.receivedTimeStamp === undefined) return;
+  request.responseTime = request.receivedTimeStamp - request.sendTimeStamp;
+};
+
 const createRequest = (body: number): MyRequest => {
   const x = {
     method: body % 10 === 0 ? "POST" : "GET",
@@ -51,8 +57,8 @@ const logResponse = (data: RequestData): void => {
 };
 
 const executeRequests = async (): Promise<void> => {
-  const numberOfRequests = 100;
-  const delayBetweenRequests = 400;
+  const numberOfRequests = 400;
+  // const delayBetweenRequests = 400;
   const requests: RequestData[] = [];
   for (let i = 0; i < numberOfRequests; i += 1) {
     requests.push({
@@ -68,10 +74,10 @@ const executeRequests = async (): Promise<void> => {
     requests[i].sendTimeStamp = performance.now();
 
     // eslint-disable-next-line no-await-in-loop
-    await fetch("http://34.94.174.63:5000", requests[i].request)
+    await fetch("http://34.94.65.206:5000", requests[i].request)
       .then((response) => {
         requests[i].receivedTimeStamp = performance.now();
-
+        setResponseTime(requests[i]);
         return response.text();
       })
       .then((data) => {
@@ -88,13 +94,20 @@ const executeRequests = async (): Promise<void> => {
 
   // await Promise.all(promiseArray);
 
+  console.log(`### GETS`);
+  requests.forEach((request) => {
+    if (request.request.method === "GET") console.log(request.responseTime);
+  });
+
+  console.log(`### POSTS`);
+  requests.forEach((request) => {
+    if (request.request.method === "POST") console.log(request.responseTime);
+  });
+
+  console.log(`### ALL`);
   const totalTime = requests.reduce((acc, request) => {
-    if (request.sendTimeStamp === undefined) return acc;
-    if (request.receivedTimeStamp === undefined) return acc;
-    const responseTime: number =
-      request.receivedTimeStamp - request.sendTimeStamp;
-    console.log(responseTime);
-    return acc + responseTime;
+    console.log(request.responseTime);
+    return acc + (request.responseTime ?? 0);
   }, 0);
 
   console.log("# Average response time: ", totalTime / numberOfRequests, "ms");

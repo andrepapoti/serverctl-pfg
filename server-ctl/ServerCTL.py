@@ -32,6 +32,13 @@ def load_deployment(deployment_name):
             ports:
             - containerPort: 5000
             - containerPort: 5001
+          topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                pfgtype: remotedist
   ''')
 
 def load_service(deployment_name):

@@ -1,5 +1,5 @@
 #!/bin/bash
-#./scripts/compile-dana.sh
+./scripts/compile-dana.sh
 
 # docker build . -t gcr.io/pfg2022/distributor -f app/distributor.Dockerfile
 # docker build . -t gcr.io/pfg2022/remote-dist -f app/remotedist.Dockerfile
